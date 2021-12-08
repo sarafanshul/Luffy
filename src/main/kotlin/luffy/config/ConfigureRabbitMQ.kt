@@ -1,13 +1,9 @@
 package luffy.config
 
-import luffy.consumer.ReceiveMessageHandler
-import org.springframework.amqp.core.Binding
-import org.springframework.amqp.core.BindingBuilder
-import org.springframework.amqp.core.Queue
-import org.springframework.amqp.core.TopicExchange
+import org.springframework.amqp.core.*
 import org.springframework.amqp.rabbit.connection.ConnectionFactory
-import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer
-import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter
+import org.springframework.amqp.rabbit.core.RabbitAdmin
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
@@ -15,35 +11,31 @@ import org.springframework.context.annotation.Configuration
 class ConfigureRabbitMQ {
 
     companion object {
+        private const val DEFAULT = "default_"
+        const val EXCHANGE_NAME = DEFAULT+"messaging_exchange"
+        const val ROUTING_KEY = DEFAULT+"messaging_routing_key."
 
-        const val QUEUE_NAME = "messaging_queue"
-        const val EXCHANGE_NAME = "messaging_exchange"
-        const val ROUTING_KEY = "messaging_routing_key."
+        fun getRoutingKey( queueName : String) =
+            "${ROUTING_KEY}_${queueName}"
+
+        /**
+         * Creates a new [Queue](https://www.rabbitmq.com/queues.html). -_-
+         * - Durable : Durable (the queue will survive a broker restart)
+         * - Exclusive (used by only one connection and the queue will be deleted when that connection closes)
+         * @return [Queue] with [Queue.durable] = false
+         */
+        fun createQueue( queueName: String ) =
+            Queue(queueName ,false)
     }
 
     @Bean
-    fun createQueue(): Queue = Queue(QUEUE_NAME, false)
+    fun amqpAdmin( connectionFactory: ConnectionFactory ): AmqpAdmin = RabbitAdmin(connectionFactory)
 
     @Bean
     fun createExchange(exchangeName: String? = null): TopicExchange =
         TopicExchange(EXCHANGE_NAME)
 
     @Bean
-    fun createBinding(queue: Queue, exchange: TopicExchange): Binding =
-        BindingBuilder.bind(queue).to(exchange).with("$ROUTING_KEY#")
+    fun getMessageConverter() : Jackson2JsonMessageConverter = Jackson2JsonMessageConverter()
 
-    @Bean
-    fun createContainer(
-        connectionFactory: ConnectionFactory,
-        messageListenerAdapter: MessageListenerAdapter
-    ): SimpleMessageListenerContainer =
-        SimpleMessageListenerContainer().apply {
-            setMessageListener(messageListenerAdapter)
-            setConnectionFactory(connectionFactory)
-            setQueueNames(QUEUE_NAME ,)
-        }
-
-    @Bean
-    fun createListenerAdapter( handler : ReceiveMessageHandler ) : MessageListenerAdapter =
-        MessageListenerAdapter(handler ,handler::handleMessage.name)
 }
