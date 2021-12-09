@@ -8,9 +8,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-class ConfigureRabbitMQ {
+class RabbitMQConfig {
 
     companion object {
+        // TODO move these to application.properties
         private const val DEFAULT = "default_"
         const val EXCHANGE_NAME = DEFAULT+"messaging_exchange"
         const val ROUTING_KEY = DEFAULT+"messaging_routing_key."
@@ -31,9 +32,24 @@ class ConfigureRabbitMQ {
     @Bean
     fun amqpAdmin( connectionFactory: ConnectionFactory ): AmqpAdmin = RabbitAdmin(connectionFactory)
 
+//    @Bean
+//    fun createExchange(): DirectExchange = DirectExchange(EXCHANGE_NAME)
+
+    /**
+     * Topic exchange for debugging purposes , as we can listen to `generic_queue.all`
+     *
+     * Change to Direct Exchange for prod purposes.
+     */
     @Bean
-    fun createExchange(exchangeName: String? = null): TopicExchange =
-        TopicExchange(EXCHANGE_NAME)
+    fun createExchange(): TopicExchange = TopicExchange(EXCHANGE_NAME)
+
+    @Bean
+    fun createGenericQueue() : Queue =
+        Queue("generic_queue.all" ,false)
+
+    @Bean
+    fun createGenericBinding(genericQueue : Queue ,exchange : TopicExchange) : Binding =
+        BindingBuilder.bind(genericQueue).to(exchange).with("$ROUTING_KEY*")
 
     @Bean
     fun getMessageConverter() : Jackson2JsonMessageConverter = Jackson2JsonMessageConverter()

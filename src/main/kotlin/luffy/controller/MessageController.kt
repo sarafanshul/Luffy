@@ -2,9 +2,9 @@
 
 package luffy.controller
 
-import luffy.config.ConfigureRabbitMQ.Companion.EXCHANGE_NAME
-import luffy.config.ConfigureRabbitMQ.Companion.createQueue
-import luffy.config.ConfigureRabbitMQ.Companion.getRoutingKey
+import luffy.config.RabbitMQConfig.Companion.EXCHANGE_NAME
+import luffy.config.RabbitMQConfig.Companion.createQueue
+import luffy.config.RabbitMQConfig.Companion.getRoutingKey
 import luffy.model.MessageData
 import luffy.model.QueueInformation
 import luffy.util.logger
@@ -15,23 +15,21 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("producer")
-class SendMessageController(
+class MessageController(
     private val template: RabbitTemplate,
     private val amqpAdmin: AmqpAdmin ,
     private val exchange: TopicExchange
 ) {
 
     companion object{
-
-        @JvmStatic
-        private val log = logger()
-
+        @JvmStatic private val log = logger()
     }
 
     @PostMapping("send")
     fun sendMessage(@RequestBody messageData : MessageData) : ResponseEntity<QueueInformation>{
 
-        val queueName = messageData.receiverId
+        val queueName = messageData.receiverId!!
+        messageData.time = System.currentTimeMillis() // when message received to server
 
         val routingKey = getRoutingKey(queueName)
 
