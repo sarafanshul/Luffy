@@ -11,9 +11,17 @@ on:
 
 jobs:
   build:
-
+    name: Build artifact
     runs-on: ubuntu-latest
-
+    services:
+      rabbitmq:
+        image: rabbitmq:3.8
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK
@@ -22,5 +30,14 @@ jobs:
           java-version: '17'
           distribution: 'adopt'
           cache: maven
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.7.0
+        with:
+          mongodb-version: '4.4'
       - name: Build with Maven
         run: mvn -B package --file pom.xml
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Build Artifacts
+          path: target/*.jar

@@ -1,28 +1,34 @@
 package luffy.service
 
 import luffy.model.User
+import luffy.repository.UserRepository
 import luffy.util.logger
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
 @Service
-class UserService {
+class UserService(
+    private val repository : UserRepository
+) {
 
     companion object{
         @JvmStatic private val log = logger()
     }
 
-    fun addUser(user : User) : User {
-        if( false ){
-            // add user
-            return user
-        } else{
-            log.warn("User : $user already exists!")
-            throw ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "User already exists"
-            )
-        }
+    fun addAndUpdateUser(user : User) : User {
+        return repository.save(user)
     }
+
+    fun getUserById( id : String ) : User {
+        val x = repository.findById(id)
+        if( ! x.isPresent )
+            throw ResponseStatusException(
+                HttpStatus.BAD_REQUEST ,"User not found!"
+            )
+        return x.get()
+    }
+
+    fun userExists( id : String ) : Boolean = repository.existsById(id)
+
 }

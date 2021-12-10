@@ -2,23 +2,17 @@
 
 package luffy.controller
 
-import luffy.config.RabbitMQConfig.Companion.EXCHANGE_NAME
-import luffy.config.RabbitMQConfig.Companion.createQueue
-import luffy.config.RabbitMQConfig.Companion.getRoutingKey
 import luffy.model.MessageData
 import luffy.model.QueueInformation
+import luffy.service.MessageService
 import luffy.util.logger
-import org.springframework.amqp.core.*
-import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("producer")
+@RequestMapping("message")
 class MessageController(
-    private val template: RabbitTemplate,
-    private val amqpAdmin: AmqpAdmin ,
-    private val exchange: TopicExchange
+    private val service : MessageService
 ) {
 
     companion object{
@@ -27,21 +21,12 @@ class MessageController(
 
     @PostMapping("send")
     fun sendMessage(@RequestBody messageData : MessageData) : ResponseEntity<QueueInformation>{
-
-        val queueName = messageData.receiverId!!
-        messageData.time = System.currentTimeMillis() // when message received to server
-
-        val routingKey = getRoutingKey(queueName)
-
-        if( amqpAdmin.getQueueInfo(queueName) == null ){
-            val queue = createQueue(queueName)
-            val binding : Binding = BindingBuilder.bind(queue).to(exchange).with(routingKey)
-            amqpAdmin.declareQueue(queue)
-            amqpAdmin.declareBinding(binding)
-        }
-
-        template.convertAndSend(EXCHANGE_NAME , routingKey ,messageData)
-
-        return ResponseEntity.ok( QueueInformation(queueName ,routingKey) )
+        return ResponseEntity.ok( service.sendMessage(messageData) )
     }
+
+    @GetMapping("count")
+    fun getQueueCount( @RequestParam queue : String ) : ResponseEntity<Int>{
+        return ResponseEntity.ok(service.getMessageCount(queue))
+    }
+
 }

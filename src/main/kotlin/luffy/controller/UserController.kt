@@ -4,10 +4,7 @@ import luffy.model.User
 import luffy.service.UserService
 import luffy.util.logger
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("user")
@@ -19,8 +16,13 @@ class UserController(
         @JvmStatic private val log = logger()
     }
 
-    @PostMapping("add")
-    fun addUser( @RequestBody user : User ) : ResponseEntity<User>{
-        return ResponseEntity.ok( service.addUser(user) )
+    @GetMapping("get")
+    fun getUser( @RequestParam id : String ) : ResponseEntity<User>{
+        return ResponseEntity.ok( service.getUserById(id) )
+    }
+
+    @PostMapping("nakama")
+    fun updateUser( @RequestBody user : User ) : ResponseEntity<User>{
+        return ResponseEntity.ok( service.addAndUpdateUser(user) )
     }
 }
