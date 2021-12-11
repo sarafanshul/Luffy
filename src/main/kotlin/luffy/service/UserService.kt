@@ -2,7 +2,7 @@ package luffy.service
 
 import luffy.model.User
 import luffy.repository.UserRepository
-import luffy.util.logger
+import luffy.config.logger
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException

@@ -12,25 +12,47 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+
+    services:
+      rabbitmq:
+        image: rabbitmq:3.8
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+          - 15672:15672
+
     steps:
+
       - uses: actions/checkout@v2
+
       - name: Set up JDK
         uses: actions/setup-java@v2
         with:
           java-version: '17'
           distribution: 'adopt'
           cache: maven
+
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.7.0
+        with:
+          mongodb-version: '4.4'
+
       - name: Build with Maven
         run: mvn -B package --file pom.xml
+
       - name: Upload
         uses: actions/upload-artifact@v2
         with:
           name: Build Artifacts
           path: target/*.jar
+
       - name: Get Version
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+
       - name: Release Artifacts
         uses: ncipollo/release-action@v1
         with:

@@ -2,5 +2,5 @@ package luffy.util
 
 object DatabaseConstants {
 
-    const val USER_COLLECTION = "users"
+    const val MONGO_COLLECTION_USER = "users"
 }

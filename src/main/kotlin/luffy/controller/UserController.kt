@@ -2,7 +2,7 @@ package luffy.controller
 
 import luffy.model.User
 import luffy.service.UserService
-import luffy.util.logger
+import luffy.config.logger
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 

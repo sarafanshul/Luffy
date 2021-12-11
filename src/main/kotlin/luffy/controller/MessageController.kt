@@ -5,7 +5,7 @@ package luffy.controller
 import luffy.model.MessageData
 import luffy.model.QueueInformation
 import luffy.service.MessageService
-import luffy.util.logger
+import luffy.config.logger
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
