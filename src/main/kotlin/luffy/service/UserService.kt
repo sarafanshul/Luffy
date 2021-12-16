@@ -31,4 +31,11 @@ class UserService(
 
     fun userExists( id : String ) : Boolean = repository.existsById(id)
 
+    fun getFriends( userId : String ) : List<User>{
+        return getUserById(userId)
+            .connections?.map { name ->
+                getUserById( name )
+            } ?: listOf()
+    }
+
 }

@@ -37,7 +37,7 @@ class MessageService(
         val routingKey = RabbitMQConfig.getRoutingKey(queueName)
 
         if( amqpAdmin.getQueueInfo(queueName) == null ){
-            val queue = RabbitMQConfig.createQueue(queueName)
+            val queue = RabbitMQConfig.createMessagingQueue(queueName)
             val binding : Binding = BindingBuilder.bind(queue).to(exchange).with(routingKey)
             amqpAdmin.declareQueue(queue)
             amqpAdmin.declareBinding(binding)

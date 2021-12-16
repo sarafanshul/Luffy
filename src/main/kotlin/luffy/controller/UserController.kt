@@ -12,13 +12,16 @@ class UserController(
     private val service : UserService
 ) {
 
-    companion object{
-        @JvmStatic private val log = logger()
-    }
+    companion object{ @JvmStatic private val log = logger() }
 
     @GetMapping("get")
     fun getUser( @RequestParam id : String ) : ResponseEntity<User>{
         return ResponseEntity.ok( service.getUserById(id) )
+    }
+
+    @GetMapping("tomodachi")
+    fun getFriends( @RequestParam userId : String ) : ResponseEntity<List<User>>{
+        return ResponseEntity.ok( service.getFriends(userId) )
     }
 
     @PostMapping("nakama")

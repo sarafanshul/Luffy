@@ -1,4 +1,4 @@
-package luffy.consumer
+package luffy.controller.consumer
 
 import luffy.model.MessageData
 import luffy.config.logger

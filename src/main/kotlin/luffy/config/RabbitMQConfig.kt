@@ -16,7 +16,15 @@ class RabbitMQConfig {
         const val EXCHANGE_NAME = DEFAULT+"messaging_exchange"
         const val ROUTING_KEY = DEFAULT+"messaging_routing_key."
 
-        fun getRoutingKey( queueName : String) =
+        // default queue properties
+        private const val QUEUE_IS_DURABLE = true // survives broker restart
+        private const val QUEUE_IS_EXCLUSIVE = false
+        private const val QUEUE_IS_AUTO_DELETE = false // deleted when last consumer unsubscribes
+        private val QUEUE_ARGS = mapOf<String , Any>(
+            "x-expires" to (1L * 30 * 24 * 60 * 60 * 1000) // 30 days of ttl period after last use (https://www.rabbitmq.com/ttl.html#queue-ttl)
+        )
+
+        fun getRoutingKey( queueName : String ) =
             "${ROUTING_KEY}_${queueName}"
 
         /**
@@ -25,8 +33,8 @@ class RabbitMQConfig {
          * - Exclusive (used by only one connection and the queue will be deleted when that connection closes)
          * @return [Queue] with [Queue.durable] = false
          */
-        fun createQueue( queueName: String ) =
-            Queue(queueName ,false)
+        fun createMessagingQueue( queueName: String ) =
+            Queue(queueName , QUEUE_IS_DURABLE , QUEUE_IS_EXCLUSIVE , QUEUE_IS_AUTO_DELETE , QUEUE_ARGS)
     }
 
     @Bean
