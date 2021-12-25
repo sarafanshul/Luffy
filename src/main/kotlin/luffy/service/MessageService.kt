@@ -2,6 +2,7 @@ package luffy.service
 
 import luffy.config.RabbitMQConfig
 import luffy.model.MessageData
+import luffy.model.MessageReturn
 import luffy.model.QueueInformation
 import luffy.util.isOk
 import org.springframework.amqp.core.AmqpAdmin
@@ -24,7 +25,7 @@ class MessageService(
     @Autowired
     lateinit var userService: UserService // for removing circular dependency
 
-    fun sendMessage( messageData: MessageData ) : QueueInformation{
+    fun sendMessage( messageData: MessageData ) : MessageReturn{
 
         if( ! isMessageValid(messageData) )
             throw ResponseStatusException(
@@ -45,7 +46,10 @@ class MessageService(
 
         template.convertAndSend(RabbitMQConfig.EXCHANGE_NAME, routingKey ,messageData)
 
-        return QueueInformation(queueName ,routingKey)
+        return MessageReturn(
+            messageData = messageData,
+            queueInformation = QueueInformation(queueName ,routingKey)
+        )
     }
 
     fun getMessageCount( queueName : String ) : Int {

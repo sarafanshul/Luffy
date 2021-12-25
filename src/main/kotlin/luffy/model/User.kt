@@ -12,5 +12,5 @@ data class User(
     @Id
     val id : String? = null,
     val name : String? = null,
-    val connections : List<String>? = null,
+    val connections : MutableList<String>? = null,
 ) : Serializable

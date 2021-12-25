@@ -2,39 +2,79 @@ package luffy.service
 
 import luffy.model.User
 import luffy.repository.UserRepository
-import luffy.config.logger
+import luffy.model.ConnectionData
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
 @Service
 class UserService(
-    private val repository : UserRepository
+    private val repository: UserRepository
 ) {
 
-    companion object{
-        @JvmStatic private val log = logger()
-    }
-
-    fun addAndUpdateUser(user : User) : User {
+    private fun addAndUpdateUser(user: User): User {
         return repository.save(user)
     }
 
-    fun getUserById( id : String ) : User {
+    fun addFriend(connectionData: ConnectionData): Boolean {
+        val sender = getUserById(connectionData.senderUser!!)
+        val receiver = getUserById(connectionData.receiverUser!!)
+
+        if (sender.connections?.contains(receiver.id) == true ||
+            receiver.connections?.contains(sender.id) == true
+        ) return false
+
+        sender.connections?.add(receiver.id!!)
+        receiver.connections?.add(sender.id!!)
+
+        addAndUpdateUser(sender)
+        addAndUpdateUser(receiver)
+
+        return true
+    }
+
+    fun deleteConnection( connectionData: ConnectionData ) : Boolean{
+        val sender = getUserById(connectionData.senderUser!!)
+        val receiver = getUserById(connectionData.receiverUser!!)
+
+        if (sender.connections?.contains(receiver.id) == false ||
+            receiver.connections?.contains(sender.id) == false
+        ) return false
+
+        sender.connections?.remove(receiver.id!!)
+        receiver.connections?.remove(sender.id!!)
+
+        addAndUpdateUser(sender)
+        addAndUpdateUser(receiver)
+
+        return true
+    }
+
+    fun getUserById(id: String): User {
         val x = repository.findById(id)
-        if( ! x.isPresent )
+        if (!x.isPresent)
             throw ResponseStatusException(
-                HttpStatus.BAD_REQUEST ,"User not found!"
+                HttpStatus.BAD_REQUEST, "User not found!"
             )
         return x.get()
     }
 
-    fun userExists( id : String ) : Boolean = repository.existsById(id)
+    fun addUser(user: User): Boolean {
+        if( userExists(user.id!!) )
+            throw ResponseStatusException(
+                HttpStatus.CONFLICT ,"User Already Exists!"
+            )
+        user.connections?.clear()
+        addAndUpdateUser(user)
+        return true
+    }
 
-    fun getFriends( userId : String ) : List<User>{
+    fun userExists(id: String): Boolean = repository.existsById(id)
+
+    fun getFriends(userId: String): List<User> {
         return getUserById(userId)
             .connections?.map { name ->
-                getUserById( name )
+                getUserById(name)
             } ?: listOf()
     }
 

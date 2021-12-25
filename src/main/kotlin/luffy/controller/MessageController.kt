@@ -2,10 +2,10 @@
 
 package luffy.controller
 
-import luffy.model.MessageData
-import luffy.model.QueueInformation
-import luffy.service.MessageService
 import luffy.config.logger
+import luffy.model.MessageData
+import luffy.model.MessageReturn
+import luffy.service.MessageService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -20,7 +20,7 @@ class MessageController(
     }
 
     @PostMapping("send")
-    fun sendMessage(@RequestBody messageData : MessageData) : ResponseEntity<QueueInformation>{
+    fun sendMessage(@RequestBody messageData : MessageData) : ResponseEntity<MessageReturn>{
         return ResponseEntity.ok( service.sendMessage(messageData) )
     }
 
