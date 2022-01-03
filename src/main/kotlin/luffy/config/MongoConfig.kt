@@ -18,10 +18,13 @@ class MongoConfig : AbstractMongoClientConfiguration() {
     @Value("\${database.host}")
     lateinit var CONNECTION_URL : String
 
+    @Value("\${database.port}")
+    lateinit var CONNECTION_PORT : String
+
     override fun getDatabaseName(): String = DATABASE_NAME
 
     override fun mongoClient(): MongoClient =
-        MongoClients.create(CONNECTION_URL)
+        MongoClients.create("$CONNECTION_URL:$CONNECTION_PORT")
 
     @Bean
     fun mongoTemplate() : MongoTemplate =
