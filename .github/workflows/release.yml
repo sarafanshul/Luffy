@@ -58,6 +58,19 @@ jobs:
         with:
           artifacts: "target/Luffy.jar"
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build Image
+        run: ./mvnw spring-boot:build-image
+
+      - name: Push Image
+        run: docker push anshulsaraf/luffy:${{env.RELEASE_VERSION}}
+
 #      - name: Deploy Artifacts
 #        uses: einaregilsson/beanstalk-deploy@v18
 #        with:

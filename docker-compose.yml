@@ -1,20 +1,25 @@
 version: "3.7"
 services:
   api_service:
-    build: .
+    image: luffy:1.0.2-STABLE-SNAPSHOT
     restart: always
+    container_name: 'luffy'
+    depends_on:
+      - mongo
+      - rabbitmq
     ports:
       - "8080:8080"
-#    links:
-#      - mongo:service_db # add variable to dockerfile for host.docker.internal
+    environment:
+      - DATABASE_HOST=mongodb://mongo
+      - SPRING_RABBITMQ_HOST=rabbitmq
+
   mongo:
     image: mongo
     restart: always
+    container_name: 'mongoDB'
     ports:
       - "27017:27017"
-#    environment:
-#      MONGO_INITDB_ROOT_USERNAME: root
-#      MONGO_INITDB_ROOT_PASSWORD: example
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: 'rabbitmq'
