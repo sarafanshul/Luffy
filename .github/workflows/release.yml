@@ -53,18 +53,12 @@ jobs:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
         run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:11}) # changed 10 -> 11 for ignoring "v" in docker
 
-      - name: Release Artifacts
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "target/Luffy.jar"
-          token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
+
       - name: Change wrapper permissions
         run: chmod +x ./mvnw
       - name: Build Image
@@ -72,6 +66,12 @@ jobs:
 
       - name: Push Image
         run: docker push anshulsaraf/luffy:${{env.RELEASE_VERSION}}
+
+      - name: Release Artifacts
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "target/Luffy.jar"
+          token: ${{ secrets.GITHUB_TOKEN }}
 
 #      - name: Deploy Artifacts
 #        uses: einaregilsson/beanstalk-deploy@v18

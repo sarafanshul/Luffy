@@ -85,6 +85,11 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<version>${project.parent.version}</version>
+				<configuration>
+					<image>
+						<name>docker.io/anshulsaraf/luffy:${project.version}</name>
+					</image>
+				</configuration>
 				<executions>
 					<execution>
 						<goals>
