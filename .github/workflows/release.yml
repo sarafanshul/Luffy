@@ -51,7 +51,7 @@ jobs:
       - name: Get Version
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
-        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:10})
+        run: echo ::set-env name=RELEASE_VERSION::$(echo ${GITHUB_REF:11}) # changed 10 -> 11 for ignoring "v" in docker
 
       - name: Release Artifacts
         uses: ncipollo/release-action@v1
@@ -64,7 +64,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
+      
+      - name: Change wrapper permissions
+        run: chmod +x ./mvnw
       - name: Build Image
         run: ./mvnw spring-boot:build-image
 
