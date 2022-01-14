@@ -1,5 +1,5 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
-# after completion it'll publish and release the build artifacts and deploy to aws
+# after completion it'll publish and release the build artifacts and deploy to dockerhub, aws
 
 name: Java release artifact
 
@@ -42,12 +42,6 @@ jobs:
       - name: Build with Maven
         run: mvn -B package --file pom.xml
 
-      - name: Upload
-        uses: actions/upload-artifact@v2
-        with:
-          name: Build Artifacts
-          path: target/*.jar
-
       - name: Get Version
         env:
           ACTIONS_ALLOW_UNSECURE_COMMANDS: true
@@ -73,13 +67,19 @@ jobs:
           artifacts: "target/Luffy.jar"
           token: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Deploy Artifacts
-#        uses: einaregilsson/beanstalk-deploy@v18
-#        with:
-#          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-#          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          application_name: Luffy
-#          environment_name: Luffy-env
-#          version_label: "${{env.RELEASE_VERSION}}"
-#          region: ap-south-1
-#          deployment_package: "target/NarutoDB.jar"
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: Build Artifacts
+          path: target/*.jar
+
+      - name: Deploy Artifacts to AWS
+        uses: einaregilsson/beanstalk-deploy@v18
+        with:
+          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          application_name: luffy
+          environment_name: Luffy-env
+          version_label: "${{env.RELEASE_VERSION}}"
+          region: ap-south-1
+          deployment_package: "target/Luffy.jar"

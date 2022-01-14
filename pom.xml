@@ -5,7 +5,7 @@
 
 	<groupId>com.projectdelta</groupId>
 	<artifactId>luffy</artifactId>
-	<version>1.0.2-STABLE-SNAPSHOT</version>
+	<version>1.0.3-ALPHA-SNAPSHOT</version>
 	<name>Luffy</name>
 	<description>AMQP client</description>
 

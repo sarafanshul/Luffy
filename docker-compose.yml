@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   api_service:
-    image: luffy:1.0.2-STABLE-SNAPSHOT
+    image: anshulsaraf/luffy
     restart: always
     container_name: 'luffy'
     depends_on:

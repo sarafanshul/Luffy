@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Configuration
 class RabbitMQConfig {
 
     companion object {
-        // TODO move these to application.properties
         private const val DEFAULT = "default_"
         const val EXCHANGE_NAME = DEFAULT+"messaging_exchange"
         const val ROUTING_KEY = DEFAULT+"messaging_routing_key."
@@ -24,8 +23,7 @@ class RabbitMQConfig {
             "x-expires" to (1L * 30 * 24 * 60 * 60 * 1000) // 30 days of ttl period after last use (https://www.rabbitmq.com/ttl.html#queue-ttl)
         )
 
-        fun getRoutingKey( queueName : String ) =
-            "${ROUTING_KEY}_${queueName}"
+        fun getRoutingKey( queueName : String ) = "${ROUTING_KEY}_${queueName}"
 
         /**
          * Creates a new [Queue](https://www.rabbitmq.com/queues.html). -_-
@@ -39,9 +37,6 @@ class RabbitMQConfig {
 
     @Bean
     fun amqpAdmin( connectionFactory: ConnectionFactory ): AmqpAdmin = RabbitAdmin(connectionFactory)
-
-//    @Bean
-//    fun createExchange(): DirectExchange = DirectExchange(EXCHANGE_NAME)
 
     /**
      * Topic exchange for debugging purposes , as we can listen to `generic_queue.all`

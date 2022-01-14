@@ -1,15 +1,22 @@
 package luffy.service
 
+import luffy.config.RabbitMQConfig
 import luffy.model.User
 import luffy.repository.UserRepository
 import luffy.model.ConnectionData
+import org.springframework.amqp.core.AmqpAdmin
+import org.springframework.amqp.core.Binding
+import org.springframework.amqp.core.BindingBuilder
+import org.springframework.amqp.core.TopicExchange
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 
 @Service
 class UserService(
-    private val repository: UserRepository
+    private val repository: UserRepository,
+    private val amqpAdmin: AmqpAdmin,
+    private val exchange: TopicExchange,
 ) {
 
     private fun addAndUpdateUser(user: User): User {
@@ -66,7 +73,20 @@ class UserService(
             )
         user.connections?.clear()
         addAndUpdateUser(user)
+        openUserQueue(user)
         return true
+    }
+
+    private fun openUserQueue(user: User) {
+        val queueName = user.id!!
+        val routingKey = RabbitMQConfig.getRoutingKey(queueName)
+
+        if( amqpAdmin.getQueueInfo(queueName) == null ){
+            val queue = RabbitMQConfig.createMessagingQueue(queueName)
+            val binding : Binding = BindingBuilder.bind(queue).to(exchange).with(routingKey)
+            amqpAdmin.declareQueue(queue)
+            amqpAdmin.declareBinding(binding)
+        }
     }
 
     fun userExists(id: String): Boolean = repository.existsById(id)
