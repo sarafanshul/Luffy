@@ -5,7 +5,7 @@
 
 	<groupId>com.projectdelta</groupId>
 	<artifactId>luffy</artifactId>
-	<version>1.0.3-ALPHA-SNAPSHOT</version>
+	<version>1.0.3.1-ALPHA-SNAPSHOT</version>
 	<name>Luffy</name>
 	<description>AMQP client</description>
 
@@ -17,7 +17,7 @@
 	</parent>
 
 	<properties>
-		<java.version>17</java.version>
+		<java.version>11</java.version>
 		<kotlin.version>1.6.0</kotlin.version>
 	</properties>
 
